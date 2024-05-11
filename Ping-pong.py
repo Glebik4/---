@@ -27,9 +27,9 @@ class GameSprite(sprite.Sprite):
 class Player(GameSprite):
     def update_r(self):
         keys = key.get_pressed()
-        if keys[K_UP] and self.rect.x > 5:
+        if keys[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys[K_DOWN] and self.rect.x < 630: 
+        if keys[K_DOWN] and self.rect.y < 630: 
             self.rect.y += self.speed
     def update_l(self):
         keys = key.get_pressed()
@@ -38,9 +38,16 @@ class Player(GameSprite):
         if keys[K_s] and self.rect.y < 630:
             self.rect.y += self.speed
 
-rocket_l = Player('Ракетка 1.png', 30, 200, 70, 150, 4)
-rocked_r = Player('Ракетка 2.png', 600, 200, 70, 150, 4)
-ball = GameSprite('мяч.png', 300, 250, 50, 30, 4)
+racket_l = Player('ракетка1.png', 30, 180, 50, 100, 10)
+racket_r = Player('ракетка2.png', 650, 180, 50, 100, 10)
+ball = GameSprite('мяч1.png', 350, 180, 30, 30, 5)
+
+speed_y = 7
+speed_x = 7
+font.init()
+font = font.Font(None, 35)
+lose1 = font.render('Игрок 1 Проиграл!', True, (180, 0, 0))
+lose2 = font.render('Игрок 2 Проиграл!', True, (180, 0, 0))
 
 while game:
     for e in event.get():
@@ -48,11 +55,29 @@ while game:
            game = False
     if not finish:
         window.fill(back)
-        rocked_r.update_r()
-        rocket_l.update_l()
+        racket_r.update_r()
+        racket_l.update_l()
+
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+        if sprite.collide_rect(racket_l, ball) or sprite.collide_rect(racket_r, ball):
+            speed_x *= -1
+            speed_y *= -1
+        if ball.rect.y > win_height or ball.rect.y < 0:
+            speed_y *= -1
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200, 200))
+            game_over = True
+        if ball.rect.x > win_width:
+            finish = True
+            window.blit(lose2, (200, 200))
+            game_over = True
 
         ball.reset()
-        rocked_r.reset()
-        rocket_l.reset()
+        racket_r.reset()
+        racket_l.reset()
         display.update()
     time.delay(50)
+    
